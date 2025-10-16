@@ -115,3 +115,4 @@ def buscaCelda(hoja, valor_buscado):
             celda_objetivo = f"{celda.column_letter}2"
             return hoja[celda_objetivo].value
     return ""
+print(f"📂 XML guardado en: {os.path.abspath('salida.xml')}")
