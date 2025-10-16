@@ -2,12 +2,11 @@ import os
 import ipaddress
 import pandas as pd
 import openpyxl as xl
-from tkinter import filedialog, messagebox
-import tkinter as tk
 
 
 def main(xls, xml):
-    # Convertir .xls en .xlsx
+    """Procesa un Excel y plantilla XML, genera salida.xml"""
+    # Convertir .xls en .xlsx si es necesario
     x = pd.read_excel(xls, sheet_name=None, engine="xlrd")
     xlsx = xls + ".xlsx"
 
@@ -106,68 +105,13 @@ def main(xls, xml):
 
     print("✅ Archivo salida.xml generado correctamente.")
     os.remove(xlsx)
+    return "✅ Archivo salida.xml generado correctamente."
 
 
 def buscaCelda(hoja, valor_buscado):
-    # Busca en la fila 1
-    columna_encontrada = None
+    """Busca un valor en la primera fila y devuelve el valor de la segunda."""
     for celda in hoja[1]:
         if celda.value == valor_buscado:
-            columna_encontrada = celda.column_letter
-            break
-
-    if columna_encontrada:
-        celda_objetivo = f"{columna_encontrada}2"
-        return hoja[celda_objetivo].value
-    else:
-        return ""
-
-
-# === GUI LOCAL (solo si ejecutas main.py directamente) ===
-def seleccionar_excel():
-    ruta = filedialog.askopenfilename(
-        title="Seleccionar archivo Excel",
-        filetypes=[("Archivo Excel", "*.xls *.xlsx")]
-    )
-    if ruta:
-        entrada_excel.delete(0, tk.END)
-        entrada_excel.insert(0, ruta)
-
-
-def generar():
-    ruta_excel = entrada_excel.get()
-    ruta_xml = (
-        "plantilla_L1800+NR3500.xml"
-        if opcion_seleccionada.get() == "L18+NR35"
-        else "plantilla_L2600+NR3500.xml"
-    )
-
-    if not ruta_excel or not ruta_xml:
-        messagebox.showerror("Error", "Debes seleccionar ambos archivos.")
-        return
-
-    main(ruta_excel, ruta_xml)
-    messagebox.showinfo("Éxito", "✅ Proceso completado correctamente.")
-
-
-if __name__ == "__main__":
-    # Solo lanza la GUI si se ejecuta este script directamente
-    ventana = tk.Tk()
-    ventana.title("Procesador de Archivos Nokia")
-    ventana.geometry("500x200")
-
-    tk.Label(ventana, text="Archivo Excel:").pack(pady=5)
-    entrada_excel = tk.Entry(ventana, width=60)
-    entrada_excel.pack()
-    tk.Button(ventana, text="Examinar Excel", command=seleccionar_excel).pack()
-
-    tk.Label(ventana, text="Selecciona una opción:").pack(pady=10)
-    opcion_seleccionada = tk.StringVar(value="L18+NR35")
-    opciones = ["L18+NR35", "L26+NR35"]
-    tk.OptionMenu(ventana, opcion_seleccionada, *opciones).pack()
-
-    tk.Button(
-        ventana, text="Generar", bg="green", fg="white", command=generar
-    ).pack(pady=10)
-
-    ventana.mainloop()
+            celda_objetivo = f"{celda.column_letter}2"
+            return hoja[celda_objetivo].value
+    return ""
