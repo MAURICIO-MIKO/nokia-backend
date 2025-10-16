@@ -3,13 +3,15 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import tempfile
 import os
-from main import main
+import shutil
+from main import main  # función que procesa Excel → XML
 
 app = FastAPI()
 
+# 🔓 Permitir llamadas desde tu frontend de GitHub Pages
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://Cirecet-optimizacion-web-nokia.github.io"],  # tu frontend
+    allow_origins=["https://cirecet-optimizacion-web-nokia.github.io"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,22 +23,22 @@ def home():
 
 @app.post("/procesar")
 async def procesar(excel: UploadFile, plantilla: str = Form(...)):
+    # Crear carpeta temporal
     with tempfile.TemporaryDirectory() as tmp:
         excel_path = os.path.join(tmp, excel.filename)
         with open(excel_path, "wb") as f:
             f.write(await excel.read())
 
-        # Ruta absoluta de plantilla
-        plantilla_path = os.path.join(os.path.dirname(__file__), plantilla)
+        # Llamar a tu función principal
+        main(excel_path, plantilla)
+
+        # Copiar salida.xml al directorio temporal
         salida_path = os.path.join(tmp, "salida.xml")
+        if os.path.exists("salida.xml"):
+            shutil.copy("salida.xml", salida_path)
+        else:
+            return {"error": "No se generó salida.xml"}
 
-        main(excel_path, plantilla_path)
-
-        # Copiar el archivo de salida al temp si tu main lo guarda en el directorio raíz
-        if not os.path.exists(salida_path) and os.path.exists("salida.xml"):
-            os.rename("salida.xml", salida_path)
-
-        # 🔹 Devolver el archivo directamente al frontend
         return FileResponse(
             salida_path,
             media_type="application/xml",
