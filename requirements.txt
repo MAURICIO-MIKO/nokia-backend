@@ -5,3 +5,4 @@ openpyxl
 xlrd
 ipaddress
 jinja2
+python-multipart
