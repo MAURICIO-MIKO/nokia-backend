@@ -2,7 +2,6 @@ from fastapi import FastAPI, UploadFile, Form
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
-import shutil
 
 # 🧠 Importamos los dos scripts distintos
 from main import main as main_general
@@ -22,30 +21,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # 🏠 Ruta de prueba
 @app.get("/")
 def home():
     return {"status": "✅ API Nokia lista y funcionando correctamente"}
 
-
 # 🧩 1️⃣ Endpoint que usa main.py (el general)
 @app.post("/procesar")
 async def procesar(excel: UploadFile, plantilla: str = Form(...)):
-    """
-    Recibe un Excel y una plantilla XML, genera salida.xml usando main.py
-    """
+    """Recibe un Excel y una plantilla XML, genera salida.xml usando main.py"""
     return await procesar_generico(excel, plantilla, main_general, "main.py")
-
 
 # 🧩 2️⃣ Endpoint que usa solo_5G_main.py
 @app.post("/procesar5G")
 async def procesar_5g(excel: UploadFile, plantilla: str = Form(...)):
-    """
-    Recibe un Excel y una plantilla XML, genera salida.xml usando solo_5G_main.py
-    """
+    """Recibe un Excel y una plantilla XML, genera salida.xml usando solo_5G_main.py"""
     return await procesar_generico(excel, plantilla, main_5g, "solo_5G_main.py")
-
 
 # 🧠 Función auxiliar que evita repetir código
 async def procesar_generico(excel, plantilla, funcion_main, origen):
@@ -60,26 +51,23 @@ async def procesar_generico(excel, plantilla, funcion_main, origen):
             f.write(await excel.read())
 
         print(f"🧩 Ejecutando {origen} para generar XML...")
-        funcion_main(excel_path, plantilla)  # Ejecuta la función pasada (main o main_5G)
 
-        # 📄 Archivo generado localmente
-        salida_local = "salida.xml"
-        salida_tmp = os.path.join(tmp_dir, "salida.xml")
+        # 🧠 Ejecutar la función y obtener la ruta del XML generado
+        xml_generado = funcion_main(excel_path, plantilla)
 
-        if not os.path.exists(salida_local):
+        if not os.path.exists(xml_generado):
             return JSONResponse(
                 status_code=500,
-                content={"error": f"❌ No se generó salida.xml correctamente desde {origen}."}
+                content={"error": f"❌ No se generó el archivo correctamente desde {origen}."}
             )
 
-        shutil.copy(salida_local, salida_tmp)
-        print(f"✅ XML copiado en {salida_tmp}")
+        print(f"✅ XML generado en {xml_generado}")
 
-        # 📦 Devolver al cliente
+        # 📦 Devolver al cliente el archivo real
         return FileResponse(
-            salida_tmp,
+            xml_generado,
             media_type="application/xml",
-            filename="salida.xml"
+            filename=os.path.basename(xml_generado)
         )
 
     except Exception as e:

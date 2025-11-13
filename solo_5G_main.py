@@ -5,7 +5,7 @@ import openpyxl as xl
 
 
 def main(xls, xml):
-    """Procesa un Excel y plantilla XML (solo 5G), genera un archivo XML con el nombre del gNodeB."""
+    """Procesa un Excel y plantilla XML (solo 5G), genera un archivo XML con el nombre del gNodeB y devuelve su ruta."""
 
     # === CONVERTIR XLS A XLSX SI ES NECESARIO ===
     x = pd.read_excel(xls, sheet_name=None, engine="xlrd")
@@ -20,8 +20,8 @@ def main(xls, xml):
 
     # === RECOGE VARIABLES DE 5G ===
     ws = wb["5G"]
-    dic["##site##"] = f'{buscaCelda(ws, "Site NAME").replace(" ", "_")}_{buscaCelda(ws, "Cod. CelSig")}'
-    dic["##mr_bts_name##"] = buscaCelda(ws, "gNodeB NAME")[3:]  # Nombre base del archivo
+    dic["##site##"] = f"{buscaCelda(ws, 'Site NAME').replace(' ', '_')}_{buscaCelda(ws, 'Cod. CelSig')}"
+    dic["##mr_bts_name##"] = buscaCelda(ws, "gNodeB NAME")[3:]
     dic["##mr_bts_id##"] = buscaCelda(ws, "mrBTSId")
     dic["##gnb_id##"] = buscaCelda(ws, "gNodeB id")
     dic["##ip_gnb_oym##"] = buscaCelda(ws, "O&M gNB IP")
@@ -61,8 +61,8 @@ def main(xls, xml):
     dic["##PRACH root sequence Index NR3500##"] = buscaCelda(ws, "PRACH root sequence Index NR3500")
 
     # === ADVERTENCIA SI HAY VARIABLES VACÍAS ===
-    for v in dic:
-        if dic[v] == "" or dic[v] is None:
+    for v, val in dic.items():
+        if not val:
             print(f"⚠️ WARNING: Variable {v} vacía")
 
     # === SUSTITUIR VARIABLES EN XML ===
@@ -75,20 +75,20 @@ def main(xls, xml):
     enb = f"ENB{dic['##mr_bts_name##']}".replace("_", "-")
     contenido = contenido.replace(f"ENB{dic['##mr_bts_name##']}", enb)
 
-    # === CREAR CARPETA DE SALIDA (opcional) ===
-    os.makedirs("salidas", exist_ok=True)
+    # === CREAR CARPETA /tmp/salidas (para Render) ===
+    output_dir = os.path.join("/tmp", "salidas")
+    os.makedirs(output_dir, exist_ok=True)
 
     # === GUARDAR ARCHIVO FINAL CON NOMBRE AUTOMÁTICO ===
-    nombre_salida = f"{dic['##mr_bts_name##']}.xml"
-    nombre_salida = nombre_salida.replace(" ", "_")  # evita espacios
-    ruta_salida = os.path.join("salidas", nombre_salida)
+    nombre_salida = f"_{dic['##site##']}.xml"
+    ruta_salida = os.path.join(output_dir, nombre_salida)
 
     with open(ruta_salida, "w", encoding="utf-8") as f:
         f.write(contenido)
 
     print(f"✅ Archivo {ruta_salida} generado correctamente.")
     os.remove(xlsx)
-    return f"✅ Archivo {ruta_salida} generado correctamente."
+    return ruta_salida  # ⚠️ Devuelve la ruta completa (Render lo necesita)
 
 
 def buscaCelda(hoja, valor_buscado):
@@ -98,7 +98,3 @@ def buscaCelda(hoja, valor_buscado):
             celda_objetivo = f"{celda.column_letter}2"
             return hoja[celda_objetivo].value
     return ""
-
-
-if __name__ == "__main__":
-    print(f"📂 XML guardado en: {os.path.abspath('salidas')}")
