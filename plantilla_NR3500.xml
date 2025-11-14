@@ -5958,10 +5958,7 @@
 <p name="ipV4Addr">##ip_gnb_s1_outer##</p>
 <p name="x2LinkTrustCtrl">gnbControlled</p>
 </managedObject>
-<managedObject class="com.nokia.srbts.nrbts:NRX2LINK_TRUST" distName="MRBTS-##mr_bts_id##/NRBTS-##gnb_id##/NRX2LINK_TRUST-258" version="NRBTSCL24R3_2413_120" operation="create">
-<p name="ipV4Addr">##ip_enb_s1_outer##</p>
-<p name="x2LinkTrustCtrl">gnbControlled</p>
-</managedObject>
+
     <managedObject class="com.nokia.srbts.nrbts:NRX2LINK_TRUST" distName="MRBTS-##mr_bts_id##/NRBTS-##gnb_id##/NRX2LINK_TRUST-259" version="NRBTSCL24R3_2413_120" operation="create">
       <p name="ipV4Addr">10.28.204.50</p>
       <p name="x2LinkTrustCtrl">gnbControlled</p>
@@ -6397,16 +6394,7 @@
       <p name="policyOrderNumber">1000</p>
       <p name="userLabel">Trafico securizado</p>
       <list name="trafficSelectorList">
-        <item>
-          <p name="localIpAddress">##ip_enb_inner##</p>
-<p name="localIpPort">-1</p>
-          <p name="localIpPrefixLength">##mask_s1##</p>
-<p name="protocol">-1</p>
-<p name="remoteIpAddress">0.0.0.0</p>
-<p name="remoteIpPort">-1</p>
-<p name="remoteIpPrefixLength">0</p>
-</item>
-<item>
+    <item>
           <p name="localIpAddress">##ip_gnb_inner##</p>
           <p name="localIpPort">-1</p>
           <p name="localIpPrefixLength">32</p>
@@ -6422,15 +6410,6 @@
       <p name="policyOrderNumber">1001</p>
       <p name="userLabel">trafico Xp</p>
       <list name="trafficSelectorList">
-        <item>
-          <p name="localIpAddress">##ip_enb_s1_outer##</p>
-<p name="localIpPort">-1</p>
-<p name="localIpPrefixLength">##mask_s1##</p>
-<p name="protocol">-1</p>
-<p name="remoteIpAddress">##ip_gnb_s1_outer##</p>
-<p name="remoteIpPort">-1</p>
-<p name="remoteIpPrefixLength">32</p>
-</item>
 <item>
 <p name="localIpAddress">##ip_gnb_s1_outer##</p>
 <p name="localIpPort">-1</p>
@@ -6517,8 +6496,8 @@
 </managedObject>
     <managedObject class="com.nokia.srbts.tnl:IPADDRESSV4" distName="MRBTS-##mr_bts_id##/TNLSVC-1/TNL-1/IPNO-1/IPIF-3/IPADDRESSV4-1" version="TNL24R3_2413_120" operation="create">
 <p name="ipAddressAllocationMethod">MANUAL</p>
-<p name="localIpAddr">##ip_enb_s1_outer##</p>
-<p name="localIpPrefixLength">##mask_s1##</p>
+      <p name="localIpAddr">10.28.194.174</p>
+      <p name="localIpPrefixLength">24</p>
 </managedObject>
 <managedObject class="com.nokia.srbts.tnl:IPADDRESSV4" distName="MRBTS-##mr_bts_id##/TNLSVC-1/TNL-1/IPNO-1/IPIF-3/IPADDRESSV4-2" version="TNL24R3_2413_120" operation="create">
 <p name="ipAddressAllocationMethod">MANUAL</p>
