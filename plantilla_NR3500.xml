@@ -6477,7 +6477,7 @@
 <p name="ipAddressAllocationMethod">MANUAL</p>
 <p name="ipAddressAllocationMethod">MANUAL</p>
       <p name="localIpAddr">10.28.194.173</p>
-      <p name="localIpPrefixLength">24</p>
+      <p name="localIpPrefixLength">24</p>  
   </managedObject>
 <managedObject class="com.nokia.srbts.tnl:IPADDRESSV4" distName="MRBTS-##mr_bts_id##/TNLSVC-1/TNL-1/IPNO-1/IPIF-10/IPADDRESSV4-2" version="TNL24R3_2413_120" operation="create">
 <p name="ipAddressAllocationMethod">MANUAL</p>
