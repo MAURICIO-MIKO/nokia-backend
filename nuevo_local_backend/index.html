@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>⚙️ Generador XML 5G Local</title>
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+  text-align: center;
+  margin: 2rem;
+}
+input, button {
+  margin: 1rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+button {
+  background: #0b3d91;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover { background: #1e40af; }
+#status {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+<h2>🧠 Generador XML 5G - Modo Local</h2>
+
+<input type="file" id="excel" accept=".xls,.xlsx" />
+<button id="btnGenerar">Generar XML</button>
+<p id="status"></p>
+
+<script>
+document.getElementById("btnGenerar").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const archivo = document.getElementById("excel").files[0];
+  const estado = document.getElementById("status");
+
+  if (!archivo) {
+    estado.textContent = "⚠️ Debes seleccionar un archivo Excel";
+    estado.style.color = "red";
+    return;
+  }
+
+  estado.textContent = "⏳ Generando XML...";
+  estado.style.color = "#0b3d91";
+
+  const form = new FormData();
+  form.append("excel", archivo);
+
+  try {
+    const resp = await fetch("http://127.0.0.1:8000/generar-xml-5g", { method: "POST", body: form });
+    if (!resp.ok) throw new Error("Error al generar XML");
+
+    const blob = await resp.blob();
+    const xmlText = await blob.text();
+    localStorage.setItem("xmlGenerado", xmlText);
+
+    estado.textContent = "✅ XML generado correctamente. Abriendo vista de resultado...";
+    estado.style.color = "green";
+
+    // 🔁 Abrir resultado.html en una nueva pestaña (sin bloqueos)
+    setTimeout(() => {
+      window.open("resultado.html", "_blank");
+    }, 800);
+
+  } catch (err) {
+    estado.textContent = "❌ Error: " + err.message;
+    estado.style.color = "red";
+    console.error(err);
+  }
+});
+</script>
+</body>
+</html>

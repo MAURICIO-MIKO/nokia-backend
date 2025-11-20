@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>📄 Resultado XML 5G</title>
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+  margin: 2rem;
+}
+h2 {
+  color: #0b3d91;
+  text-align: center;
+}
+pre {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 75vh;
+}
+button {
+  background: #0b3d91;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover { background: #1e40af; }
+</style>
+</head>
+<body>
+<h2>✅ XML generado correctamente</h2>
+
+<div style="text-align:center; margin-bottom:1rem;">
+  <button id="btnDescargar">⬇ Descargar XML</button>
+  <button onclick="volver()">🔙 Volver</button>
+</div>
+
+<pre id="xmlContainer">Cargando...</pre>
+
+<script>
+function volver() {
+  window.location.href = "index.html";
+}
+
+window.onload = () => {
+  const xml = localStorage.getItem("xmlGenerado");
+  const contenedor = document.getElementById("xmlContainer");
+
+  if (!xml) {
+    contenedor.textContent = "⚠️ No se encontró XML generado. Vuelve atrás e inténtalo de nuevo.";
+    return;
+  }
+
+  // 🧠 Mostrar XML con formato bonito
+  const formatted = xml.replace(/></g, ">\n<");
+  contenedor.textContent = formatted;
+
+  // 💾 Preparar botón de descarga
+  document.getElementById("btnDescargar").onclick = () => {
+    const blob = new Blob([xml], { type: "application/xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "salida_5G.xml";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<raml xmlns="raml21.xsd" version="2.1">
+  <cmData type="plan" scope="all" id="4208913589">
+    <header>
+      <log action="create" dateTime="{{ fecha }}"/>
+    </header>
+    <managedObject 
+        class="com.nokia.srbts:MRBTS"
+        distName="MRBTS-{{ mr_bts_id }}"
+        version="SBTS24R3_2413_100"
+        operation="create">
+      <p name="btsName">MNB{{ mr_bts_name }}</p>
+    </managedObject>
+  </cmData>
+</raml>
