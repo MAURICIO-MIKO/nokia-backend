@@ -5,6 +5,7 @@ import os
 import tempfile
 import xml.etree.ElementTree as ET
 import mammoth
+from xml.dom import minidom
 
 # ==============================
 # Importaciones existentes
@@ -49,7 +50,7 @@ async def procesar_5g(excel: UploadFile, plantilla: str = Form(...)):
     return await procesar_generico(excel, plantilla, main_5g, "solo_5G_main.py")
 
 # =======================================================
-# Función auxiliar
+# 🔧 Función auxiliar (SE MANTIENE COMO ESTABA)
 # =======================================================
 async def procesar_generico(excel, plantilla, funcion_main, origen):
     try:
@@ -81,7 +82,7 @@ async def procesar_generico(excel, plantilla, funcion_main, origen):
         )
 
 # =======================================================
-# 3️⃣ Convertir manual Word → HTML
+# 3️⃣ Convertir manual Word → HTML (SE MANTIENE)
 # =======================================================
 @app.post("/convertirWordManual")
 async def convertir_word_manual(archivo: UploadFile):
@@ -108,19 +109,21 @@ async def convertir_word_manual(archivo: UploadFile):
             content={"error": f"Error convirtiendo Word: {str(e)}"}
         )
 
+
 # =======================================================
 # ⭐ 4️⃣ NUEVO ENDPOINT — BORRAR WNCELG
+#   (VERSIÓN FINAL, ÚNICA, FUNCIONAL)
 # =======================================================
 @app.post("/borrarWNCELG")
 async def borrar_wncelg(xml_file: UploadFile = File(...), wncel_id: str = Form(...)):
     """
-    Borra el valor dentro de <list name="wncelIdList">
-    Si la lista queda vacía → borra todo el <managedObject WNCELG>.
+    Borra el <p> cuyo contenido coincide con wncel_id dentro de <list name="wncelIdList">
+    en un bloque WNCELG. Si la lista queda vacía, borra también ese WNCELG.
     """
-    try:
-        temp_path = tempfile.mktemp(suffix=".xml")
 
-        # Guardar archivo subido
+    try:
+        # Guardar archivo XML temporal
+        temp_path = tempfile.mktemp(suffix=".xml")
         with open(temp_path, "wb") as f:
             f.write(await xml_file.read())
 
@@ -128,6 +131,7 @@ async def borrar_wncelg(xml_file: UploadFile = File(...), wncel_id: str = Form(.
         root = tree.getroot()
 
         cambios = False
+        eliminar_mos = []
 
         # Buscar WNCELG
         for mo in root.findall(".//managedObject[@class='com.nokia.srbts.wcdma:WNCELG']"):
@@ -136,16 +140,20 @@ async def borrar_wncelg(xml_file: UploadFile = File(...), wncel_id: str = Form(.
             if lista is None:
                 continue
 
-            # Buscar y borrar el <p> de ese ID
+            # Borrar el ID
             for p in lista.findall("p"):
                 if p.text.strip() == wncel_id:
                     lista.remove(p)
                     cambios = True
 
-            # Si no queda ningún <p>, borrar todo el managedObject
+            # Si quedó vacío → borrar todo el bloque
             if len(lista.findall("p")) == 0:
-                root.remove(mo)
+                eliminar_mos.append(mo)
                 cambios = True
+
+        # Eliminar bloques WNCELG completos
+        for mo in eliminar_mos:
+            root.remove(mo)
 
         if not cambios:
             return JSONResponse(
@@ -153,9 +161,14 @@ async def borrar_wncelg(xml_file: UploadFile = File(...), wncel_id: str = Form(.
                 status_code=404
             )
 
-        # Guardar XML modificado
-        output_file = tempfile.mktemp(prefix="mod_", suffix=".xml")
-        tree.write(output_file, encoding="utf-8", xml_declaration=True)
+        # Guardar XML modificado con formato correcto
+        output_file = tempfile.mktemp(prefix="XML_mod_", suffix=".xml")
+
+        rough = ET.tostring(root, encoding="utf-8")
+        pretty_xml = minidom.parseString(rough).toprettyxml(indent="  ")
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write(pretty_xml)
 
         return FileResponse(
             output_file,
