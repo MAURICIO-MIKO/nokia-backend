@@ -3,19 +3,41 @@ import ipaddress
 import pandas as pd
 import openpyxl as xl
 
+def convertir_xls_a_xlsx(xls_path):
+    """
+    Convierte cualquier archivo .xls a .xlsx aunque xlrd no lo soporte.
+    Se apoya en openpyxl reconstruyendo la estructura.
+    Funciona en Render.
+    """
+    import xlrd
+    import openpyxl
+
+    libro_xls = xlrd.open_workbook(xls_path)
+    libro_xlsx = openpyxl.Workbook()
+    libro_xlsx.remove(libro_xlsx.active)
+
+    for nombre_hoja in libro_xls.sheet_names():
+        sh = libro_xls.sheet_by_name(nombre_hoja)
+        hoja_nueva = libro_xlsx.create_sheet(title=nombre_hoja)
+
+        for row in range(sh.nrows):
+            for col in range(sh.ncols):
+                hoja_nueva.cell(row=row + 1, col=col + 1).value = sh.cell_value(row, col)
+
+    nuevo = xls_path + ".xlsx"
+    libro_xlsx.save(nuevo)
+    return nuevo
+
+
 def main(xls, xml):
     """Procesa un Excel y plantilla XML (4G + 5G), genera un archivo XML en /tmp/salidas y devuelve su ruta."""
 
-    # === CONVERTIR XLS A XLSX SI ES NECESARIO ===
-    x = pd.read_excel(xls, sheet_name=None, engine="xlrd")
-    xlsx = xls + ".xlsx"
-
-    with pd.ExcelWriter(xlsx, engine="openpyxl") as writer:
-        for sheet_name, df in x.items():
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
+    # === CONVERTIR XLS A XLSX (VERSIÓN COMPATIBLE CON RENDER) ===
+    xlsx = convertir_xls_a_xlsx(xls)
 
     dic = {}
     wb = xl.load_workbook(xlsx)
+
 
     # === RECOGE VARIABLES DE 5G ===
     ws = wb["5G"]
