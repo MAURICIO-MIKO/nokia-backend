@@ -2682,7 +2682,7 @@
 <p name="perDl256QamChQualEst">60s</p>
 <p name="perUl256QamChQualEst">5s</p>
 <p name="periodicCqiFeedbackType">wideband</p>
-<p name="phyCellId">Non##Physical Layer Cell Identity L1800##e</p>
+<p name="phyCellId">##Physical Layer Cell Identity L1800##</p>
 <p name="prachDetThresScaling">100</p>
 <p name="preventCellActivation">false</p>
 <p name="prsPowerBoost">0</p>
