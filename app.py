@@ -116,6 +116,13 @@ async def convertir_word_manual(archivo: UploadFile):
 # =======================================================
 @app.post("/borrarSector3G")
 async def borrar_sector_3g(xml_file: UploadFile = File(...), sector: int = Form(...)):
+
+    print("======== DEBUG ========")
+    print("xml_file filename:", xml_file.filename if xml_file else "None")
+    print("sector recibido:", sector)
+    print("========================")
+
+    
     """
     Borra el <p> N dentro de wncelIdList según sector.
     sector = 1 → primer p
