@@ -2682,7 +2682,7 @@
 <p name="perDl256QamChQualEst">60s</p>
 <p name="perUl256QamChQualEst">5s</p>
 <p name="periodicCqiFeedbackType">wideband</p>
-<p name="phyCellId">None</p>
+<p name="phyCellId">Non##Physical Layer Cell Identity L1800##e</p>
 <p name="prachDetThresScaling">100</p>
 <p name="preventCellActivation">false</p>
 <p name="prsPowerBoost">0</p>
@@ -3165,14 +3165,14 @@
 <p name="maxPrbHighPrioUciGrant">8</p>
 <p name="multNumUeHighPrioUciGrant">3</p>
 <p name="multUciGrant">3</p>
-<p name="prachCS">None</p>
+<p name="prachCS">##PrachCS L1800##</p>
 <p name="prachConfIndex">3</p>
 <p name="prachFreqOff">7</p>
 <p name="prachHsFlag">false</p>
 <p name="prsConfigurationIndex">151</p>
 <p name="prsNumDlFrames">1</p>
 <p name="pucchNAnCs">0</p>
-<p name="rootSeqIndex">None</p>
+<p name="rootSeqIndex">##RACH root sequence L1800##</p>
 <p name="selectOuterPuschRegion">None</p>
 <p name="slimRfFilterDL">Nominal</p>
 <p name="slimRfFilterUL">Nominal</p>
