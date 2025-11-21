@@ -5,9 +5,8 @@ import openpyxl as xl
 
 def convertir_xls_a_xlsx(xls_path):
     """
-    Convierte cualquier archivo .xls a .xlsx aunque xlrd no lo soporte.
-    Se apoya en openpyxl reconstruyendo la estructura.
-    Funciona en Render.
+    Convierte cualquier archivo .xls a .xlsx
+    incluso si xlrd no lo soporta (Render no soporta .xls antiguos).
     """
     import xlrd
     import openpyxl
@@ -22,7 +21,10 @@ def convertir_xls_a_xlsx(xls_path):
 
         for row in range(sh.nrows):
             for col in range(sh.ncols):
-                hoja_nueva.cell(row=row + 1, col=col + 1).value = sh.cell_value(row, col)
+                hoja_nueva.cell(
+                    row=row + 1,
+                    column=col + 1
+                ).value = sh.cell_value(row, col)
 
     nuevo = xls_path + ".xlsx"
     libro_xlsx.save(nuevo)
