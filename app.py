@@ -114,15 +114,17 @@ async def convertir_word_manual(archivo: UploadFile):
 # ⭐ 4️⃣ NUEVO ENDPOINT — BORRAR WNCELG
 #   (VERSIÓN FINAL, ÚNICA, FUNCIONAL)
 # =======================================================
-@app.post("/borrarWNCELG")
-async def borrar_wncelg(xml_file: UploadFile = File(...), wncel_id: str = Form(...)):
+@app.post("/borrarSector3G")
+async def borrar_sector_3g(xml_file: UploadFile = File(...), sector: int = Form(...)):
     """
-    Borra el <p> cuyo contenido coincide con wncel_id dentro de <list name="wncelIdList">
-    en un bloque WNCELG. Si la lista queda vacía, borra también ese WNCELG.
+    Borra el <p> N dentro de wncelIdList según sector.
+    sector = 1 → primer p
+    sector = 2 → segundo p
+    sector = 3 → tercer p
     """
 
     try:
-        # Guardar archivo XML temporal
+        # Guardar archivo temporal
         temp_path = tempfile.mktemp(suffix=".xml")
         with open(temp_path, "wb") as f:
             f.write(await xml_file.read())
@@ -133,37 +135,45 @@ async def borrar_wncelg(xml_file: UploadFile = File(...), wncel_id: str = Form(.
         cambios = False
         eliminar_mos = []
 
-        # Buscar WNCELG
+        # Buscar bloques WNCELG
         for mo in root.findall(".//managedObject[@class='com.nokia.srbts.wcdma:WNCELG']"):
 
             lista = mo.find(".//list[@name='wncelIdList']")
             if lista is None:
                 continue
 
-            # Borrar el ID
-            for p in lista.findall("p"):
-                if p.text.strip() == wncel_id:
-                    lista.remove(p)
-                    cambios = True
+            p_list = lista.findall("p")
 
-            # Si quedó vacío → borrar todo el bloque
+            # ❌ Si el sector NO existe
+            if sector < 1 or sector > len(p_list):
+                return JSONResponse(
+                    {"error": f"❌ La celda 3G del sector {sector} no existe."},
+                    status_code=404
+                )
+
+            # Convertir sector → índice de lista
+            index = sector - 1
+
+            # Borrar el <p> correspondiente
+            lista.remove(p_list[index])
+            cambios = True
+
+            # Si la lista queda vacía → borrar el bloque completo
             if len(lista.findall("p")) == 0:
                 eliminar_mos.append(mo)
-                cambios = True
 
-        # Eliminar bloques WNCELG completos
+        # Eliminar bloques completos
         for mo in eliminar_mos:
             root.remove(mo)
 
         if not cambios:
             return JSONResponse(
-                {"error": f"❌ No se encontró el ID {wncel_id}"},
-                status_code=404
+                {"error": "❌ No se aplicaron cambios."},
+                status_code=400
             )
 
-        # Guardar XML modificado con formato correcto
+        # Guardar XML modificado
         output_file = tempfile.mktemp(prefix="XML_mod_", suffix=".xml")
-
         rough = ET.tostring(root, encoding="utf-8")
         pretty_xml = minidom.parseString(rough).toprettyxml(indent="  ")
 
@@ -173,8 +183,9 @@ async def borrar_wncelg(xml_file: UploadFile = File(...), wncel_id: str = Form(.
         return FileResponse(
             output_file,
             media_type="application/xml",
-            filename=f"XML_sin_{wncel_id}.xml"
+            filename=f"XML_sector{sector}_3G_eliminado.xml"
         )
 
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
+
